@@ -570,6 +570,141 @@
         }
     }
 
+    function getClientFallbackReply(query) {
+        const raw = (query || '').trim();
+        const q = raw.toLowerCase();
+        const isUrdu = /[\u0600-\u06FF]/.test(raw);
+        const blogUrl = window.DIGINIX_BLOG_URL || 'https://diginixit.com/blog';
+
+        // 1. Farewells
+        const farewellRegex = /(^|\b)(bye|goodbye|good\s*bye|cya|see\s*ya|see\s*you|allah\s*hafiz|khuda\s*hafiz|alvida|tata|take\s*care|have\s*a\s*nice\s*day|farewell)(\b|$)|اللہ\s*حافظ|خدا\s*حافظ|الوداع/i;
+        if (farewellRegex.test(q)) {
+            return {
+                reply: isUrdu
+                    ? `اللہ حافظ! آپ سے بات کر کے خوشی ہوئی۔ آپ کا دن اچھا گزرے!`
+                    : `Goodbye! Nice meeting you, have a nice day!`,
+                sources: []
+            };
+        }
+
+        // 2. Greetings
+        const greetingRegex = /^(hi|hello|hey|hiya|howdy|salam|assalam|assalamu\s*alaikum|aoa|kese\s*ho|kaise\s*ho|kya\s*haal|how\s*are\s*you|how\s*r\s*u|how\s*do\s*you\s*do|how\'s\s*it\s*going)[\s.?!]*$|^[؟?!.\s]*(سلام|السلام\s*علیکم|کیسے\s*ہو|کیا\s*حال)[؟?!.\s]*$/i;
+        if (greetingRegex.test(q)) {
+            return {
+                reply: isUrdu
+                    ? `وعلیکم السلام! میں بالکل ٹھیک ہوں، شکریہ۔ میں آج آپ کی کس طرح مدد کر سکتا ہوں؟`
+                    : `Hello! How can I help you today?`,
+                sources: []
+            };
+        }
+
+        // 3. Dr. Nadeem Nazir
+        if (q.includes('nadeem') || q.includes('nazir') || q.includes('doctor') || q.includes('ceo') || q.includes('advisor') || raw.includes('ندیم') || raw.includes('نذیر') || raw.includes('ڈاکٹر')) {
+            if (q.includes('contact') || q.includes('phone') || q.includes('email') || q.includes('number') || raw.includes('رابطہ') || raw.includes('نمبر')) {
+                return {
+                    reply: isUrdu
+                        ? `آپ ڈاکٹر ندیم نذیر سے ای میل ${FALLBACK_DATA.email} یا فون ${FALLBACK_DATA.phone} پر رابطہ کر سکتے ہیں۔`
+                        : `You can contact Dr. Nadeem Nazir via email at ${FALLBACK_DATA.email} or phone at ${FALLBACK_DATA.phone}.`,
+                    sources: []
+                };
+            }
+            if (q.includes('domain') || q.includes('expertise') || q.includes('specializ') || q.includes('skills')) {
+                return {
+                    reply: `Dr. Nadeem Nazir specializes in Enterprise Software Architecture, Corporate Governance, Cross-Border Tech Law, and Venture Valuations.`,
+                    sources: []
+                };
+            }
+            return {
+                reply: isUrdu
+                    ? `ڈاکٹر ندیم نذیر DiginixIT کے چیف ایگزیکٹو اور فاؤنڈنگ سٹریٹجک ایڈوائزر ہیں۔`
+                    : `Dr. Nadeem Nazir is the Chief Executive & Founding Strategic Advisor at DiginixIT.`,
+                sources: []
+            };
+        }
+
+        // 4. Blogs & Articles
+        if (q.includes('blog') || q.includes('article') || q.includes('post') || q.includes('insight') || raw.includes('بلاگ') || raw.includes('مضمون') || raw.includes('تحریر')) {
+            return {
+                reply: isUrdu
+                    ? `آپ ہمارے بلاگز اور مضامین اس لنک پر دیکھ سکتے ہیں: ${blogUrl}`
+                    : `You can explore our published blogs and insights here: ${blogUrl}`,
+                sources: [
+                    { title: "The Future of Web Development in 2026", url: `${blogUrl}/the-future-of-web-development-in-2026`, excerpt: "Exploring minimal frameworks, spatial WebGL interfaces, and dark-mode styling." },
+                    { title: "Mastering Design Systems", url: `${blogUrl}/mastering-design-systems`, excerpt: "Configuring clean HSL tokens and atomic components." },
+                    { title: "Optimizing Core Web Vitals for $10k Sites", url: `${blogUrl}/optimizing-core-web-vitals-for-10k-sites`, excerpt: "Checklist for sub-second LCP, zero layout shifts, and 100/100 Lighthouse scores." }
+                ]
+            };
+        }
+
+        // 5. Web Engineering
+        if (q.includes('web') || q.includes('engineering') || q.includes('saas') || q.includes('software')) {
+            return {
+                reply: `DiginixIT builds custom SaaS platforms, serverless web applications, real-time databases, and 3D WebGL interfaces.`,
+                sources: []
+            };
+        }
+
+        // 6. UI/UX Design
+        if (q.includes('design') || q.includes('ui') || q.includes('ux') || q.includes('figma')) {
+            return {
+                reply: `DiginixIT provides bespoke UI/UX design systems, typography-first layouts, and interactive micro-interactions.`,
+                sources: []
+            };
+        }
+
+        // 7. Technical SEO
+        if (q.includes('seo') || q.includes('vitals') || q.includes('speed') || q.includes('rank')) {
+            return {
+                reply: `DiginixIT specializes in Core Web Vitals optimization (<2.5s LCP), Lighthouse performance, and search engine visibility.`,
+                sources: []
+            };
+        }
+
+        // 8. Tech Law & Compliance
+        if (q.includes('law') || q.includes('compliance') || q.includes('gdpr') || q.includes('legal') || q.includes('ip')) {
+            return {
+                reply: `DiginixIT provides tech law consultancy, GDPR/CCPA data privacy compliance audits, IP protection, and SaaS contracts.`,
+                sources: []
+            };
+        }
+
+        // 9. Corporate Finance & Valuation
+        if (q.includes('finance') || q.includes('valuation') || q.includes('fundrais') || q.includes('capital')) {
+            return {
+                reply: `DiginixIT provides SaaS financial modeling, company valuations, unit economics diagnostics, and venture fundraising advisory.`,
+                sources: []
+            };
+        }
+
+        // 10. Contact info
+        if (q.includes('phone') || q.includes('whatsapp') || q.includes('call') || q.includes('cell') || raw.includes('نمبر')) {
+            return { reply: `Phone / WhatsApp: ${FALLBACK_DATA.phone}`, sources: [] };
+        }
+        if (q.includes('email') || q.includes('mail') || raw.includes('ای میل')) {
+            return { reply: `Email: ${FALLBACK_DATA.email}`, sources: [] };
+        }
+        if (q.includes('address') || q.includes('location') || q.includes('office') || q.includes('studio') || raw.includes('کہاں') || raw.includes('پتہ')) {
+            return { reply: `DiginixIT offices are located at ${FALLBACK_DATA.studios}.`, sources: [] };
+        }
+        if (q.includes('contact') || q.includes('reach') || raw.includes('رابطہ')) {
+            return { reply: `You can contact DiginixIT by phone at ${FALLBACK_DATA.phone} or by email at ${FALLBACK_DATA.email}.`, sources: [] };
+        }
+
+        // 11. Company overview
+        if (q.includes('diginix') || q.includes('company') || q.includes('agency') || q.includes('what do you do') || raw.includes('کیا کرتے')) {
+            return {
+                reply: `DiginixIT is a technology agency specializing in Web Engineering, UI/UX Design, Technical SEO, Tech Law, and Corporate Finance.`,
+                sources: []
+            };
+        }
+
+        // Default
+        return {
+            reply: `How can I help you regarding DiginixIT today?`,
+            sources: []
+        };
+    }
+
     async function submitQuery(query) {
         try {
             const res = await fetch(API_ENDPOINT, {
@@ -587,15 +722,9 @@
                 reply: data.reply || '',
                 sources: Array.isArray(data.sources) ? data.sources : []
             };
-        } catch {
-            return {
-                reply: `**DiginixIT Executive Advisory**\n\n` +
-                    `Thank you for your inquiry. For direct advisory with **${FALLBACK_DATA.advisor}**, please connect:\n` +
-                    `• Phone / WhatsApp: [${FALLBACK_DATA.phone}](tel:${FALLBACK_DATA.phoneRaw})\n` +
-                    `• Email: [${FALLBACK_DATA.email}](mailto:${FALLBACK_DATA.email})\n` +
-                    `• Studios: ${FALLBACK_DATA.studios}`,
-                sources: []
-            };
+        } catch (fetchErr) {
+            console.warn('[DiginixIT Chatbot] Network API call failed, using built-in knowledge engine:', fetchErr);
+            return getClientFallbackReply(query);
         }
     }
 
