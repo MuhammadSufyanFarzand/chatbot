@@ -6,7 +6,7 @@
     window.DiginixChatbotLoaded = true;
 
     const API_ENDPOINT = window.DIGINIX_CHAT_ENDPOINT || '/api/chat';
-    const STORAGE_KEY = 'diginix_chat_history';
+    const STORAGE_KEY = 'diginix_chat_history_v2';
 
     const FALLBACK_DATA = {
         advisor: "Dr. Nadeem Nazir (Chief Executive & Founding Strategic Advisor)",
@@ -394,6 +394,44 @@
         cursor: not-allowed;
     }
 
+    .dnx-sources {
+        margin-top: 10px;
+        padding-top: 8px;
+        border-top: 1px dashed #e5e5e5;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .dnx-sources-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #888888;
+    }
+    .dnx-source-chip {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: #171717;
+        text-decoration: none;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 5px 9px;
+        transition: all 0.15s ease;
+    }
+    .dnx-source-chip:hover {
+        background: #f0fdf4;
+        border-color: #3ecf8e;
+        color: #15803d;
+    }
+    .dnx-source-chip svg {
+        flex-shrink: 0;
+        color: #3ecf8e;
+    }
+
     @media (max-width: 480px) {
         .dnx-launcher {
             bottom: 16px;
@@ -421,10 +459,7 @@
 
         sanitized = sanitized.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         sanitized = sanitized.replace(/\*(.*?)\*/g, '<em>$1</em>');
-        sanitized = sanitized.replace(/\[(.*?)\]\((https?:\/\/[^\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-        sanitized = sanitized.replace(/(https?:\/\/[^\s<]+)/g, function(url) {
-            return url.includes('</a>') ? url : `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
-        });
+        sanitized = sanitized.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
 
         const blocks = sanitized.split(/\n\n+/);
         return blocks.map(block => {
@@ -451,7 +486,7 @@
         return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
 
-    function appendMessage(role, text, time = getTimeLabel(), scroll = true) {
+    function appendMessage(role, text, time = getTimeLabel(), scroll = true, sources = []) {
         const list = document.getElementById('dnx-messages-list');
         if (!list) return;
 
@@ -472,6 +507,27 @@
         const bubble = document.createElement('div');
         bubble.className = 'dnx-bubble';
         bubble.innerHTML = renderMarkup(text);
+
+        if (Array.isArray(sources) && sources.length > 0) {
+            const sourcesDiv = document.createElement('div');
+            sourcesDiv.className = 'dnx-sources';
+            sourcesDiv.innerHTML = `<div class="dnx-sources-label">Relevant Articles:</div>`;
+            sources.forEach(src => {
+                if (src && src.title && src.url) {
+                    const a = document.createElement('a');
+                    a.className = 'dnx-source-chip';
+                    a.href = src.url;
+                    a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
+                    const titleText = document.createTextNode(src.title);
+                    a.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg> `;
+                    a.appendChild(titleText);
+                    sourcesDiv.appendChild(a);
+                }
+            });
+            bubble.appendChild(sourcesDiv);
+        }
+
         bubbleContainer.appendChild(bubble);
 
         const timestamp = document.createElement('div');
@@ -527,13 +583,19 @@
 
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const data = await res.json();
-            return data.reply;
+            return {
+                reply: data.reply || '',
+                sources: Array.isArray(data.sources) ? data.sources : []
+            };
         } catch {
-            return `**DiginixIT Executive Advisory**\n\n` +
-                `Thank you for your inquiry. For direct advisory with **${FALLBACK_DATA.advisor}**, please connect:\n` +
-                `• Phone / WhatsApp: [${FALLBACK_DATA.phone}](tel:${FALLBACK_DATA.phoneRaw})\n` +
-                `• Email: [${FALLBACK_DATA.email}](mailto:${FALLBACK_DATA.email})\n` +
-                `• Studios: ${FALLBACK_DATA.studios}`;
+            return {
+                reply: `**DiginixIT Executive Advisory**\n\n` +
+                    `Thank you for your inquiry. For direct advisory with **${FALLBACK_DATA.advisor}**, please connect:\n` +
+                    `• Phone / WhatsApp: [${FALLBACK_DATA.phone}](tel:${FALLBACK_DATA.phoneRaw})\n` +
+                    `• Email: [${FALLBACK_DATA.email}](mailto:${FALLBACK_DATA.email})\n` +
+                    `• Studios: ${FALLBACK_DATA.studios}`,
+                sources: []
+            };
         }
     }
 
@@ -559,12 +621,12 @@
         toggleTyping(true);
 
         try {
-            const responseText = await submitQuery(text);
+            const result = await submitQuery(text);
             toggleTyping(false);
 
             const botTime = getTimeLabel();
-            appendMessage('assistant', responseText, botTime);
-            messageLog.push({ role: 'assistant', content: responseText, time: botTime });
+            appendMessage('assistant', result.reply, botTime, true, result.sources);
+            messageLog.push({ role: 'assistant', content: result.reply, time: botTime, sources: result.sources });
             saveHistory(messageLog);
         } catch {
             toggleTyping(false);
@@ -694,10 +756,22 @@
         closeBtn.addEventListener('click', () => toggle(false));
 
         clearBtn.addEventListener('click', () => {
-            if (confirm('Clear chat history?')) {
+            try {
                 localStorage.removeItem(STORAGE_KEY);
-                messageLog = [];
-                renderWelcome();
+                localStorage.removeItem('diginix_chat_history');
+            } catch {}
+            messageLog = [];
+            const list = document.getElementById('dnx-messages-list');
+            if (list) list.innerHTML = '';
+            const welcomeText = `Welcome to **DiginixIT**! How can I help you today?`;
+            const t = getTimeLabel();
+            messageLog = [{ role: 'assistant', content: welcomeText, time: t }];
+            appendMessage('assistant', welcomeText, t, false);
+            saveHistory(messageLog);
+            if (inputField) {
+                inputField.value = '';
+                inputField.style.height = '40px';
+                inputField.focus();
             }
         });
 
@@ -729,9 +803,9 @@
             const history = loadHistory();
             if (history.length > 0) {
                 messageLog = history;
-                history.forEach(m => appendMessage(m.role, m.content, m.time, false));
+                history.forEach(m => appendMessage(m.role, m.content, m.time, false, m.sources || []));
             } else {
-                const welcomeText = `Welcome to **DiginixIT**.\n\nI can assist you with:\n- **Dr. Nadeem Nazir**: Executive credentials, advisory & consultations\n- **Web Engineering**: Custom SaaS, serverless architectures & 3D WebGL\n- **UI/UX Design**: Bespoke design systems & typography\n- **Technical SEO**: Core Web Vitals optimization (<2.5s) & visibility\n- **Tech Law & Corporate Finance**: Regulatory compliance & valuation modeling\n\nHow can we help your business today?`;
+                const welcomeText = `Welcome to **DiginixIT**! How can I help you today?`;
                 const t = getTimeLabel();
                 messageLog = [{ role: 'assistant', content: welcomeText, time: t }];
                 appendMessage('assistant', welcomeText, t, false);
@@ -751,6 +825,7 @@
     window.DiginixChatbot = {
         open: () => document.getElementById('dnx-chat-window')?.classList.add('dnx-open'),
         close: () => document.getElementById('dnx-chat-window')?.classList.remove('dnx-open'),
+        clear: () => document.getElementById('dnx-clear-btn')?.click(),
         send: handleSend
     };
 })();

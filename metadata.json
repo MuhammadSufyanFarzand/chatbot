@@ -1,0 +1,8 @@
+{
+  "name": "DiginixIT AI Chatbot",
+  "description": "Standalone AI chatbot widget and backend integration package for DiginixIT with Grok and Gemini support.",
+  "prompt": "DiginixIT AI Chatbot package",
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
