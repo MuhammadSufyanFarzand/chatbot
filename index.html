@@ -11,8 +11,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: #fafafa;
             color: #171717;
             padding: 40px 20px;
@@ -20,56 +25,473 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 90vh;
-            margin: 0;
+            min-height: 100vh;
             text-align: center;
+            position: relative;
         }
         .card {
             background: #ffffff;
             border: 1px solid #dfdfdf;
             border-radius: 16px;
-            padding: 36px 32px;
+            padding: 40px 32px;
             max-width: 620px;
+            width: 100%;
             box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin: auto;
         }
         .tag {
             background: #171717;
             color: #3ecf8e;
-            padding: 4px 12px;
+            padding: 4px 14px;
             border-radius: 20px;
             font-size: 11px;
             font-weight: 700;
             letter-spacing: 0.05em;
             text-transform: uppercase;
             display: inline-block;
-            margin-bottom: 16px;
+            margin-bottom: 18px;
         }
         h1 {
-            font-size: 28px;
+            font-size: 30px;
             font-weight: 800;
             letter-spacing: -0.03em;
             margin-bottom: 12px;
+            color: #171717;
         }
         p {
-            font-size: 14px;
-            color: #707070;
+            font-size: 14.5px;
+            color: #666666;
             line-height: 1.6;
-            margin-bottom: 24px;
+            margin-bottom: 26px;
         }
-        .btn {
+        .btn-launch {
             background: #171717;
             color: #ffffff;
             border: none;
-            padding: 12px 24px;
+            padding: 13px 28px;
             border-radius: 10px;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
-        .btn:hover {
+        .btn-launch:hover {
             background: #3ecf8e;
             color: #171717;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(62, 207, 142, 0.3);
+        }
+        .btn-launch svg {
+            transition: transform 0.2s;
+        }
+        .btn-launch:hover svg {
+            transform: scale(1.1);
+        }
+
+        /* Floating Launcher Button */
+        .dnx-launcher {
+            position: fixed !important;
+            bottom: 24px !important;
+            right: 24px !important;
+            z-index: 2147483647 !important;
+            width: 60px !important;
+            height: 60px !important;
+            border-radius: 50% !important;
+            background: #171717 !important;
+            color: #ffffff !important;
+            border: 2px solid rgba(62, 207, 142, 0.4) !important;
+            box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.45) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease !important;
+            outline: none !important;
+        }
+        .dnx-launcher:hover {
+            transform: scale(1.08) !important;
+            background: #222222 !important;
+            box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.5), 0 0 0 3px rgba(62, 207, 142, 0.35) !important;
+        }
+        .dnx-badge-dot {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 14px;
+            height: 14px;
+            background: #3ecf8e;
+            border: 2px solid #171717;
+            border-radius: 50%;
+        }
+        .dnx-badge-pulse {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 14px;
+            height: 14px;
+            background: #3ecf8e;
+            border-radius: 50%;
+            animation: dnxPulse 2.2s infinite ease-out;
+            opacity: 0.8;
+        }
+        @keyframes dnxPulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            60% { transform: scale(1.8); opacity: 0; }
+            100% { transform: scale(1.8); opacity: 0; }
+        }
+
+        /* Popup Chat Window */
+        .dnx-window {
+            position: fixed !important;
+            bottom: 96px !important;
+            right: 24px !important;
+            z-index: 2147483647 !important;
+            width: 400px;
+            max-width: calc(100vw - 32px);
+            height: 600px;
+            max-height: calc(100vh - 120px);
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #dfdfdf;
+            box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transform: translateY(14px) scale(0.98);
+            transition: opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1), transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.24s;
+        }
+        .dnx-window.dnx-open {
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+            transform: translateY(0) scale(1) !important;
+        }
+
+        /* Header */
+        .dnx-header {
+            background: #171717;
+            color: #ffffff;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            flex-shrink: 0;
+        }
+        .dnx-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: left;
+        }
+        .dnx-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: #242424;
+            border: 1px solid rgba(62, 207, 142, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .dnx-title {
+            font-size: 14.5px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .dnx-subtitle {
+            font-size: 11px;
+            color: #9a9a9a;
+        }
+        .dnx-online-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #3ecf8e;
+            display: inline-block;
+        }
+        .dnx-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .dnx-icon-btn {
+            background: transparent;
+            border: none;
+            color: #9a9a9a;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .dnx-icon-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Messages */
+        .dnx-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            background: #ffffff;
+            scroll-behavior: smooth;
+        }
+        .dnx-row {
+            display: flex;
+            gap: 10px;
+            max-width: 88%;
+            animation: dnxFade 0.2s ease-out;
+            text-align: left;
+        }
+        @keyframes dnxFade {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .dnx-row.dnx-user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        .dnx-row.dnx-bot {
+            align-self: flex-start;
+        }
+        .dnx-msg-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: #171717;
+            color: #3ecf8e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .dnx-bubble {
+            padding: 12px 14px;
+            border-radius: 14px;
+            font-size: 13.5px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+        .dnx-row.dnx-user .dnx-bubble {
+            background: #171717;
+            color: #ffffff;
+            border-bottom-right-radius: 4px;
+        }
+        .dnx-row.dnx-bot .dnx-bubble {
+            background: #fafafa;
+            color: #171717;
+            border: 1px solid #ededed;
+            border-bottom-left-radius: 4px;
+        }
+        .dnx-bubble p {
+            margin: 0 0 8px 0;
+        }
+        .dnx-bubble p:last-child {
+            margin-bottom: 0;
+        }
+        .dnx-bubble strong {
+            font-weight: 600;
+        }
+        .dnx-time {
+            font-size: 10px;
+            color: #9a9a9a;
+            margin-top: 4px;
+            text-align: right;
+        }
+        .dnx-row.dnx-bot .dnx-time {
+            text-align: left;
+        }
+
+        /* Sources */
+        .dnx-sources {
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px dashed #e5e5e5;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .dnx-sources-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #888888;
+        }
+        .dnx-source-chip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #171717;
+            text-decoration: none;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 5px 9px;
+            transition: all 0.15s ease;
+        }
+        .dnx-source-chip:hover {
+            background: #f0fdf4;
+            border-color: #3ecf8e;
+            color: #15803d;
+        }
+        .dnx-source-chip svg {
+            flex-shrink: 0;
+            color: #3ecf8e;
+        }
+
+        /* Typing dots */
+        .dnx-typing-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 12px;
+            background: #fafafa;
+            border: 1px solid #ededed;
+            border-radius: 12px;
+            align-self: flex-start;
+        }
+        .dnx-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #3ecf8e;
+            animation: dnxBlink 1.4s infinite ease-in-out both;
+        }
+        .dnx-dot:nth-child(1) { animation-delay: -0.32s; }
+        .dnx-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes dnxBlink {
+            0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Chips */
+        .dnx-chips {
+            padding: 8px 14px;
+            background: #ffffff;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none;
+            flex-shrink: 0;
+        }
+        .dnx-chips::-webkit-scrollbar { display: none; }
+        .dnx-chip {
+            background: #f5f5f5;
+            color: #444444;
+            border: 1px solid #e5e5e5;
+            padding: 6px 11px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+        }
+        .dnx-chip:hover {
+            background: #171717;
+            color: #3ecf8e;
+            border-color: #171717;
+        }
+
+        /* Footer */
+        .dnx-footer {
+            padding: 12px 14px;
+            background: #ffffff;
+            border-top: 1px solid #ededed;
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .dnx-input-box {
+            flex: 1;
+            background: #f7f7f7;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            transition: border-color 0.15s ease;
+        }
+        .dnx-input-box:focus-within {
+            border-color: #3ecf8e;
+            background: #ffffff;
+        }
+        .dnx-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-family: inherit;
+            font-size: 13.5px;
+            color: #171717;
+            resize: none;
+            max-height: 100px;
+            line-height: 1.4;
+            padding: 4px 0;
+        }
+        .dnx-send-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #3ecf8e;
+            color: #171717;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+        }
+        .dnx-send-button:hover {
+            background: #24b47e;
+            color: #ffffff;
+        }
+        .dnx-send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 480px) {
+            .dnx-launcher {
+                bottom: 16px !important;
+                right: 16px !important;
+                width: 54px !important;
+                height: 54px !important;
+            }
+            .dnx-window {
+                bottom: 80px !important;
+                right: 12px !important;
+                left: 12px !important;
+                width: auto !important;
+                max-width: none !important;
+                height: calc(100vh - 100px) !important;
+            }
         }
     </style>
 </head>
@@ -81,18 +503,440 @@
         <p>
             Look at the <strong>bottom-right corner</strong> of your screen to see the floating bot launcher button, or click below to launch the popup window.
         </p>
-        <button class="btn" id="dnx-main-launch-btn">Launch Chatbot</button>
+        <button class="btn-launch" id="dnx-main-launch-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2v3"></path>
+                <rect x="4" y="6" width="16" height="13" rx="3"></rect>
+                <circle cx="9" cy="11.5" r="1.5" fill="currentColor"></circle>
+                <circle cx="15" cy="11.5" r="1.5" fill="currentColor"></circle>
+                <path d="M9 15.5h6"></path>
+            </svg>
+            Launch Chatbot
+        </button>
     </div>
-    <script src="/chatbot.js"></script>
+
+    <!-- Floating Bot Launcher Button -->
+    <button class="dnx-launcher" id="dnx-launcher-btn" aria-label="Open Chat" title="DiginixIT AI Bot">
+        <span class="dnx-badge-pulse"></span>
+        <span class="dnx-badge-dot"></span>
+        <svg id="dnx-icon-bot" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3ecf8e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v3"></path>
+            <rect x="4" y="6" width="16" height="13" rx="3"></rect>
+            <circle cx="9" cy="11.5" r="1.5" fill="#3ecf8e"></circle>
+            <circle cx="15" cy="11.5" r="1.5" fill="#3ecf8e"></circle>
+            <path d="M9 15.5h6"></path>
+            <path d="M2 12h2"></path>
+            <path d="M20 12h2"></path>
+        </svg>
+        <svg id="dnx-icon-close" style="display:none;" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+    </button>
+
+    <!-- Popup Chat Window -->
+    <div class="dnx-window" id="dnx-chat-window">
+        <div class="dnx-header">
+            <div class="dnx-brand">
+                <div class="dnx-avatar" title="DiginixIT Bot">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3ecf8e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2v3"></path>
+                        <rect x="4" y="6" width="16" height="13" rx="3"></rect>
+                        <circle cx="9" cy="11.5" r="1.5" fill="#3ecf8e"></circle>
+                        <circle cx="15" cy="11.5" r="1.5" fill="#3ecf8e"></circle>
+                        <path d="M9 15.5h6"></path>
+                    </svg>
+                </div>
+                <div>
+                    <div class="dnx-title">
+                        DIGINIXIT.
+                        <span class="dnx-online-dot"></span>
+                    </div>
+                    <div class="dnx-subtitle">AI Assistant &amp; Strategic Advisory</div>
+                </div>
+            </div>
+            <div class="dnx-actions">
+                <button class="dnx-icon-btn" id="dnx-clear-btn" title="Clear Chat" aria-label="Clear Chat">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                </button>
+                <button class="dnx-icon-btn" id="dnx-close-btn" title="Minimize" aria-label="Close">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="dnx-messages" id="dnx-messages-list"></div>
+
+        <div class="dnx-chips" id="dnx-chips-bar">
+            <button class="dnx-chip" data-q="Who is Dr. Nadeem Nazir and what is his role?">Dr. Nadeem Nazir</button>
+            <button class="dnx-chip" data-q="What web engineering services does DiginixIT offer?">Web Engineering</button>
+            <button class="dnx-chip" data-q="How can DiginixIT optimize Core Web Vitals and SEO?">SEO &amp; Vitals</button>
+            <button class="dnx-chip" data-q="Tell me about tech law &amp; compliance consulting.">Law &amp; Compliance</button>
+            <button class="dnx-chip" data-q="What blog articles are published?">Blogs &amp; Insights</button>
+        </div>
+
+        <div class="dnx-footer">
+            <div class="dnx-input-box">
+                <textarea class="dnx-input" id="dnx-input-field" placeholder="Ask anything about DiginixIT &amp; Dr. Nadeem Nazir..." rows="1"></textarea>
+            </div>
+            <button class="dnx-send-button" id="dnx-send-btn" aria-label="Send">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Standalone Widget Script -->
     <script>
-        document.getElementById('dnx-main-launch-btn')?.addEventListener('click', function () {
-            if (window.DiginixChatbot && typeof window.DiginixChatbot.open === 'function') {
-                window.DiginixChatbot.open();
-            } else {
-                var btn = document.getElementById('dnx-launcher-btn');
-                if (btn) btn.click();
+        (function () {
+            const STORAGE_KEY = 'diginix_chat_history_v2';
+            let isOpen = false;
+            let isRequestActive = false;
+            let messageLog = [];
+
+            const launcher = document.getElementById('dnx-launcher-btn');
+            const win = document.getElementById('dnx-chat-window');
+            const botIcon = document.getElementById('dnx-icon-bot');
+            const closeIcon = document.getElementById('dnx-icon-close');
+            const closeBtn = document.getElementById('dnx-close-btn');
+            const clearBtn = document.getElementById('dnx-clear-btn');
+            const inputField = document.getElementById('dnx-input-field');
+            const sendBtn = document.getElementById('dnx-send-btn');
+            const chipsBar = document.getElementById('dnx-chips-bar');
+            const launchMainBtn = document.getElementById('dnx-main-launch-btn');
+
+            function getTimeLabel() {
+                return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             }
-        });
+
+            function toggle(force) {
+                isOpen = typeof force === 'boolean' ? force : !isOpen;
+                if (!win) return;
+                if (isOpen) {
+                    win.classList.add('dnx-open');
+                    if (botIcon) botIcon.style.display = 'none';
+                    if (closeIcon) closeIcon.style.display = 'block';
+                    setTimeout(() => inputField && inputField.focus(), 120);
+                } else {
+                    win.classList.remove('dnx-open');
+                    if (botIcon) botIcon.style.display = 'block';
+                    if (closeIcon) closeIcon.style.display = 'none';
+                }
+            }
+
+            // Expose globally
+            window.DiginixChatbot = {
+                open: () => toggle(true),
+                close: () => toggle(false),
+                toggle: () => toggle(),
+                clear: () => clearBtn && clearBtn.click()
+            };
+
+            if (launcher) launcher.addEventListener('click', () => toggle());
+            if (closeBtn) closeBtn.addEventListener('click', () => toggle(false));
+            if (launchMainBtn) launchMainBtn.addEventListener('click', () => toggle(true));
+
+            function renderMarkup(text) {
+                if (!text) return '';
+                let sanitized = text
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
+
+                sanitized = sanitized.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                sanitized = sanitized.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                sanitized = sanitized.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+
+                const blocks = sanitized.split(/\n\n+/);
+                return blocks.map(block => {
+                    const lines = block.split('\n');
+                    const hasList = lines.some(l => l.trim().startsWith('- ') || l.trim().startsWith('• '));
+                    if (hasList) {
+                        let html = '<ul>';
+                        lines.forEach(l => {
+                            const clean = l.replace(/^[-•]\s*/, '').trim();
+                            if (clean) html += `<li>${clean}</li>`;
+                        });
+                        html += '</ul>';
+                        return html;
+                    }
+                    return `<p>${lines.join('<br>')}</p>`;
+                }).join('');
+            }
+
+            function appendMessage(role, text, time = getTimeLabel(), scroll = true, sources = []) {
+                const list = document.getElementById('dnx-messages-list');
+                if (!list) return;
+
+                const row = document.createElement('div');
+                row.className = `dnx-row ${role === 'user' ? 'dnx-user' : 'dnx-bot'}`;
+
+                if (role === 'assistant') {
+                    const avatar = document.createElement('div');
+                    avatar.className = 'dnx-msg-avatar';
+                    avatar.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3ecf8e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v3"></path><rect x="4" y="6" width="16" height="13" rx="3"></rect><circle cx="9" cy="11.5" r="1.5" fill="#3ecf8e"></circle><circle cx="15" cy="11.5" r="1.5" fill="#3ecf8e"></circle><path d="M9 15.5h6"></path></svg>`;
+                    row.appendChild(avatar);
+                }
+
+                const bubbleContainer = document.createElement('div');
+                bubbleContainer.style.display = 'flex';
+                bubbleContainer.style.flexDirection = 'column';
+
+                const bubble = document.createElement('div');
+                bubble.className = 'dnx-bubble';
+                bubble.innerHTML = renderMarkup(text);
+
+                if (Array.isArray(sources) && sources.length > 0) {
+                    const sourcesDiv = document.createElement('div');
+                    sourcesDiv.className = 'dnx-sources';
+                    sourcesDiv.innerHTML = `<div class="dnx-sources-label">Relevant Articles:</div>`;
+                    sources.forEach(src => {
+                        if (src && src.title && src.url) {
+                            const a = document.createElement('a');
+                            a.className = 'dnx-source-chip';
+                            a.href = src.url;
+                            a.target = '_blank';
+                            a.rel = 'noopener noreferrer';
+                            const titleText = document.createTextNode(src.title);
+                            a.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg> `;
+                            a.appendChild(titleText);
+                            sourcesDiv.appendChild(a);
+                        }
+                    });
+                    bubble.appendChild(sourcesDiv);
+                }
+
+                bubbleContainer.appendChild(bubble);
+
+                const timestamp = document.createElement('div');
+                timestamp.className = 'dnx-time';
+                timestamp.textContent = time;
+                bubbleContainer.appendChild(timestamp);
+
+                row.appendChild(bubbleContainer);
+                list.appendChild(row);
+
+                if (scroll) {
+                    list.scrollTop = list.scrollHeight;
+                }
+            }
+
+            function toggleTyping(show) {
+                const list = document.getElementById('dnx-messages-list');
+                const existing = document.getElementById('dnx-typing-row');
+                if (!show && existing) {
+                    existing.remove();
+                    return;
+                }
+                if (show && !existing && list) {
+                    const row = document.createElement('div');
+                    row.id = 'dnx-typing-row';
+                    row.className = 'dnx-row dnx-bot';
+
+                    const avatar = document.createElement('div');
+                    avatar.className = 'dnx-msg-avatar';
+                    avatar.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3ecf8e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v3"></path><rect x="4" y="6" width="16" height="13" rx="3"></rect><circle cx="9" cy="11.5" r="1.5" fill="#3ecf8e"></circle><circle cx="15" cy="11.5" r="1.5" fill="#3ecf8e"></circle><path d="M9 15.5h6"></path></svg>`;
+                    row.appendChild(avatar);
+
+                    const wrap = document.createElement('div');
+                    wrap.className = 'dnx-typing-wrap';
+                    wrap.innerHTML = '<span class="dnx-dot"></span><span class="dnx-dot"></span><span class="dnx-dot"></span>';
+
+                    row.appendChild(wrap);
+                    list.appendChild(row);
+                    list.scrollTop = list.scrollHeight;
+                }
+            }
+
+            function getClientFallbackReply(query) {
+                const raw = (query || '').trim();
+                const q = raw.toLowerCase();
+                const isUrdu = /[\u0600-\u06FF]/.test(raw);
+                const blogUrl = window.DIGINIX_BLOG_URL || 'https://diginixit.com/blog';
+
+                if (/(^|\b)(bye|goodbye|good\s*bye|cya|see\s*ya|see\s*you|allah\s*hafiz|khuda\s*hafiz|alvida|tata|take\s*care|have\s*a\s*nice\s*day|farewell)(\b|$)|اللہ\s*حافظ|خدا\s*حافظ|الوداع/i.test(q)) {
+                    return {
+                        reply: isUrdu ? 'اللہ حافظ! آپ سے بات کر کے خوشی ہوئی۔ آپ کا دن اچھا گزرے!' : 'Goodbye! Nice meeting you, have a nice day!',
+                        sources: []
+                    };
+                }
+
+                if (/^(hi|hello|hey|hiya|howdy|salam|assalam|assalamu\s*alaikum|aoa|kese\s*ho|kaise\s*ho|kya\s*haal|how\s*are\s*you|how\s*r\s*u|how\s*do\s*you\s*do|how\'s\s*it\s*going)[\s.?!]*$|^[؟?!.\s]*(سلام|السلام\s*علیکم|کیسے\s*ہو|کیا\s*حال)[؟?!.\s]*$/i.test(q)) {
+                    return {
+                        reply: isUrdu ? 'وعلیکم السلام! میں بالکل ٹھیک ہوں، شکریہ۔ میں آج آپ کی کس طرح مدد کر سکتا ہوں؟' : 'Hello! How can I help you today?',
+                        sources: []
+                    };
+                }
+
+                if (q.includes('nadeem') || q.includes('nazir') || q.includes('doctor') || q.includes('ceo') || q.includes('advisor') || raw.includes('ندیم') || raw.includes('نذیر') || raw.includes('ڈاکٹر')) {
+                    if (q.includes('contact') || q.includes('phone') || q.includes('email') || q.includes('number') || raw.includes('رابطہ') || raw.includes('نمبر')) {
+                        return {
+                            reply: isUrdu ? 'آپ ڈاکٹر ندیم نذیر سے ای میل contact@diginix.com یا فون +92 300 7960300 پر رابطہ کر سکتے ہیں۔' : 'You can contact Dr. Nadeem Nazir via email at contact@diginix.com or phone at +92 300 7960300.',
+                            sources: []
+                        };
+                    }
+                    return {
+                        reply: isUrdu ? 'ڈاکٹر ندیم نذیر DiginixIT کے چیف ایگزیکٹو اور فاؤنڈنگ سٹریٹجک ایڈوائزر ہیں۔' : 'Dr. Nadeem Nazir is the Chief Executive & Founding Strategic Advisor at DiginixIT.',
+                        sources: []
+                    };
+                }
+
+                if (q.includes('blog') || q.includes('article') || q.includes('post') || q.includes('insight') || raw.includes('بلاگ') || raw.includes('مضمون')) {
+                    return {
+                        reply: isUrdu ? `آپ ہمارے بلاگز اور مضامین اس لنک پر دیکھ سکتے ہیں: ${blogUrl}` : `You can explore our published blogs and insights here: ${blogUrl}`,
+                        sources: [
+                            { title: "The Future of Web Development in 2026", url: `${blogUrl}/the-future-of-web-development-in-2026`, excerpt: "Exploring minimal frameworks and spatial WebGL interfaces." },
+                            { title: "Mastering Design Systems", url: `${blogUrl}/mastering-design-systems`, excerpt: "Configuring clean HSL tokens and atomic components." },
+                            { title: "Optimizing Core Web Vitals for $10k Sites", url: `${blogUrl}/optimizing-core-web-vitals-for-10k-sites`, excerpt: "Checklist for sub-second LCP and 100/100 Lighthouse scores." }
+                        ]
+                    };
+                }
+
+                if (q.includes('web') || q.includes('engineering') || q.includes('saas') || q.includes('software')) {
+                    return { reply: 'DiginixIT builds custom SaaS platforms, serverless web applications, real-time databases, and 3D WebGL interfaces.', sources: [] };
+                }
+                if (q.includes('design') || q.includes('ui') || q.includes('ux') || q.includes('figma')) {
+                    return { reply: 'DiginixIT provides bespoke UI/UX design systems, typography-first layouts, and interactive micro-interactions.', sources: [] };
+                }
+                if (q.includes('seo') || q.includes('vitals') || q.includes('speed') || q.includes('rank')) {
+                    return { reply: 'DiginixIT specializes in Core Web Vitals optimization (<2.5s LCP), Lighthouse performance, and search engine visibility.', sources: [] };
+                }
+                if (q.includes('law') || q.includes('compliance') || q.includes('gdpr') || q.includes('legal') || q.includes('ip')) {
+                    return { reply: 'DiginixIT provides tech law consultancy, GDPR/CCPA data privacy compliance audits, IP protection, and SaaS contracts.', sources: [] };
+                }
+                if (q.includes('finance') || q.includes('valuation') || q.includes('fundrais') || q.includes('capital')) {
+                    return { reply: 'DiginixIT provides SaaS financial modeling, company valuations, unit economics diagnostics, and venture fundraising advisory.', sources: [] };
+                }
+                if (q.includes('phone') || q.includes('whatsapp') || q.includes('call') || q.includes('cell') || raw.includes('نمبر')) {
+                    return { reply: 'Phone / WhatsApp: +92 300 7960300', sources: [] };
+                }
+                if (q.includes('email') || q.includes('mail') || raw.includes('ای میل')) {
+                    return { reply: 'Email: contact@diginix.com', sources: [] };
+                }
+                if (q.includes('address') || q.includes('location') || q.includes('office') || q.includes('studio') || raw.includes('کہاں') || raw.includes('پتہ')) {
+                    return { reply: 'DiginixIT offices are located at Main Boulevard, Lahore and Faisalabad, Pakistan.', sources: [] };
+                }
+                if (q.includes('contact') || q.includes('reach') || raw.includes('رابطہ')) {
+                    return { reply: 'You can contact DiginixIT by phone at +92 300 7960300 or by email at contact@diginix.com.', sources: [] };
+                }
+
+                return {
+                    reply: 'How can I help you regarding DiginixIT today?',
+                    sources: []
+                };
+            }
+
+            async function submitQuery(query) {
+                try {
+                    const res = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            message: query,
+                            history: messageLog.slice(-8)
+                        })
+                    });
+
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    const data = await res.json();
+                    return {
+                        reply: data.reply || '',
+                        sources: Array.isArray(data.sources) ? data.sources : []
+                    };
+                } catch {
+                    return getClientFallbackReply(query);
+                }
+            }
+
+            async function handleSend(presetText) {
+                const text = (presetText || (inputField ? inputField.value : '')).trim();
+                if (!text || isRequestActive) return;
+
+                if (inputField) {
+                    inputField.value = '';
+                    inputField.style.height = '40px';
+                }
+
+                isRequestActive = true;
+                if (sendBtn) sendBtn.disabled = true;
+
+                const time = getTimeLabel();
+                appendMessage('user', text, time);
+                messageLog.push({ role: 'user', content: text, time });
+
+                toggleTyping(true);
+
+                try {
+                    const result = await submitQuery(text);
+                    toggleTyping(false);
+
+                    const botTime = getTimeLabel();
+                    appendMessage('assistant', result.reply, botTime, true, result.sources);
+                    messageLog.push({ role: 'assistant', content: result.reply, time: botTime, sources: result.sources });
+                } catch {
+                    toggleTyping(false);
+                    appendMessage('assistant', 'How can I help you regarding DiginixIT today?', getTimeLabel());
+                } finally {
+                    isRequestActive = false;
+                    if (sendBtn) sendBtn.disabled = false;
+                }
+            }
+
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => {
+                    messageLog = [];
+                    const list = document.getElementById('dnx-messages-list');
+                    if (list) list.innerHTML = '';
+                    const welcomeText = `Welcome to **DiginixIT**! How can I help you today?`;
+                    const t = getTimeLabel();
+                    messageLog = [{ role: 'assistant', content: welcomeText, time: t }];
+                    appendMessage('assistant', welcomeText, t, false);
+                    if (inputField) {
+                        inputField.value = '';
+                        inputField.style.height = '40px';
+                        inputField.focus();
+                    }
+                });
+            }
+
+            if (sendBtn) sendBtn.addEventListener('click', () => handleSend());
+
+            if (inputField) {
+                inputField.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSend();
+                    }
+                });
+                inputField.addEventListener('input', () => {
+                    inputField.style.height = 'auto';
+                    inputField.style.height = Math.min(inputField.scrollHeight, 100) + 'px';
+                });
+            }
+
+            if (chipsBar) {
+                chipsBar.addEventListener('click', (e) => {
+                    const btn = e.target.closest('.dnx-chip');
+                    if (btn && btn.dataset.q) {
+                        handleSend(btn.dataset.q);
+                    }
+                });
+            }
+
+            // Initial welcome
+            const welcomeText = `Welcome to **DiginixIT**! How can I help you today?`;
+            const t = getTimeLabel();
+            messageLog = [{ role: 'assistant', content: welcomeText, time: t }];
+            appendMessage('assistant', welcomeText, t, false);
+        })();
     </script>
 </body>
 </html>
