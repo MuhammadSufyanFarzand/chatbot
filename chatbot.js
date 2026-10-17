@@ -44,23 +44,25 @@
 
     /* Floating Launcher Button */
     .dnx-launcher {
-        position: fixed;
-        bottom: 24px;
-        right: 24px;
-        z-index: 99999;
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background: #171717;
-        color: #ffffff;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.35);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, background-color 0.2s ease;
-        outline: none;
+        position: fixed !important;
+        bottom: 24px !important;
+        right: 24px !important;
+        z-index: 2147483647 !important;
+        width: 60px !important;
+        height: 60px !important;
+        border-radius: 50% !important;
+        background: #171717 !important;
+        color: #ffffff !important;
+        border: 2px solid rgba(62, 207, 142, 0.4) !important;
+        box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.5) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, background-color 0.2s ease !important;
+        outline: none !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
     .dnx-launcher:hover {
         transform: scale(1.06);
@@ -99,10 +101,10 @@
 
     /* Popup Modal Window */
     .dnx-window {
-        position: fixed;
-        bottom: 96px;
-        right: 24px;
-        z-index: 99999;
+        position: fixed !important;
+        bottom: 96px !important;
+        right: 24px !important;
+        z-index: 2147483647 !important;
         width: 400px;
         max-width: calc(100vw - 32px);
         height: 600px;
@@ -869,61 +871,68 @@
 
         function toggle(force) {
             isOpen = typeof force === 'boolean' ? force : !isOpen;
+            if (!win) return;
             if (isOpen) {
                 win.classList.add('dnx-open');
-                botIcon.style.display = 'none';
-                closeIcon.style.display = 'block';
+                if (botIcon) botIcon.style.display = 'none';
+                if (closeIcon) closeIcon.style.display = 'block';
                 setTimeout(() => inputField && inputField.focus(), 120);
             } else {
                 win.classList.remove('dnx-open');
-                botIcon.style.display = 'block';
-                closeIcon.style.display = 'none';
+                if (botIcon) botIcon.style.display = 'block';
+                if (closeIcon) closeIcon.style.display = 'none';
             }
         }
 
-        launcher.addEventListener('click', () => toggle());
-        closeBtn.addEventListener('click', () => toggle(false));
+        if (launcher) launcher.addEventListener('click', () => toggle());
+        if (closeBtn) closeBtn.addEventListener('click', () => toggle(false));
 
-        clearBtn.addEventListener('click', () => {
-            try {
-                localStorage.removeItem(STORAGE_KEY);
-                localStorage.removeItem('diginix_chat_history');
-            } catch {}
-            messageLog = [];
-            const list = document.getElementById('dnx-messages-list');
-            if (list) list.innerHTML = '';
-            const welcomeText = `Welcome to **DiginixIT**! How can I help you today?`;
-            const t = getTimeLabel();
-            messageLog = [{ role: 'assistant', content: welcomeText, time: t }];
-            appendMessage('assistant', welcomeText, t, false);
-            saveHistory(messageLog);
-            if (inputField) {
-                inputField.value = '';
-                inputField.style.height = '40px';
-                inputField.focus();
-            }
-        });
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                try {
+                    localStorage.removeItem(STORAGE_KEY);
+                    localStorage.removeItem('diginix_chat_history');
+                } catch {}
+                messageLog = [];
+                const list = document.getElementById('dnx-messages-list');
+                if (list) list.innerHTML = '';
+                const welcomeText = `Welcome to **DiginixIT**! How can I help you today?`;
+                const t = getTimeLabel();
+                messageLog = [{ role: 'assistant', content: welcomeText, time: t }];
+                appendMessage('assistant', welcomeText, t, false);
+                saveHistory(messageLog);
+                if (inputField) {
+                    inputField.value = '';
+                    inputField.style.height = '40px';
+                    inputField.focus();
+                }
+            });
+        }
 
-        sendBtn.addEventListener('click', () => handleSend());
+        if (sendBtn) sendBtn.addEventListener('click', () => handleSend());
 
-        inputField.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
-            }
-        });
+        if (inputField) {
+            inputField.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                }
+            });
 
-        inputField.addEventListener('input', () => {
-            inputField.style.height = 'auto';
-            inputField.style.height = Math.min(inputField.scrollHeight, 100) + 'px';
-        });
+            inputField.addEventListener('input', () => {
+                inputField.style.height = 'auto';
+                inputField.style.height = Math.min(inputField.scrollHeight, 100) + 'px';
+            });
+        }
 
-        chipsBar.addEventListener('click', (e) => {
-            const btn = e.target.closest('.dnx-chip');
-            if (btn && btn.dataset.q) {
-                handleSend(btn.dataset.q);
-            }
-        });
+        if (chipsBar) {
+            chipsBar.addEventListener('click', (e) => {
+                const btn = e.target.closest('.dnx-chip');
+                if (btn && btn.dataset.q) {
+                    handleSend(btn.dataset.q);
+                }
+            });
+        }
 
         function renderWelcome() {
             const list = document.getElementById('dnx-messages-list');
@@ -943,18 +952,71 @@
         }
 
         renderWelcome();
+
+        // Connect public API
+        window.DiginixChatbot = {
+            open: () => toggle(true),
+            close: () => toggle(false),
+            toggle: () => toggle(),
+            clear: () => clearBtn && clearBtn.click(),
+            send: (text) => handleSend(text)
+        };
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initWidget);
-    } else {
-        initWidget();
+    function mountWidget() {
+        if (document.getElementById('dnx-launcher-btn')) return;
+        if (!document.body) return;
+        try {
+            initWidget();
+        } catch (err) {
+            console.error('[DiginixIT Chatbot] Mount error:', err);
+        }
     }
 
-    window.DiginixChatbot = {
-        open: () => document.getElementById('dnx-chat-window')?.classList.add('dnx-open'),
-        close: () => document.getElementById('dnx-chat-window')?.classList.remove('dnx-open'),
-        clear: () => document.getElementById('dnx-clear-btn')?.click(),
-        send: handleSend
+    // Define fallback global object immediately
+    window.DiginixChatbot = window.DiginixChatbot || {
+        open: function() {
+            mountWidget();
+            const btn = document.getElementById('dnx-launcher-btn');
+            const win = document.getElementById('dnx-chat-window');
+            if (win) {
+                win.classList.add('dnx-open');
+                const botIcon = document.getElementById('dnx-icon-bot');
+                const closeIcon = document.getElementById('dnx-icon-close');
+                if (botIcon) botIcon.style.display = 'none';
+                if (closeIcon) closeIcon.style.display = 'block';
+                const input = document.getElementById('dnx-input-field');
+                if (input) setTimeout(() => input.focus(), 120);
+            } else if (btn) {
+                btn.click();
+            }
+        },
+        close: function() {
+            const win = document.getElementById('dnx-chat-window');
+            if (win) win.classList.remove('dnx-open');
+        },
+        toggle: function() {
+            const btn = document.getElementById('dnx-launcher-btn');
+            if (btn) btn.click();
+        },
+        clear: function() {
+            document.getElementById('dnx-clear-btn')?.click();
+        },
+        send: function(text) {
+            mountWidget();
+            if (typeof handleSend === 'function') handleSend(text);
+        }
     };
+
+    if (document.body) {
+        mountWidget();
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', mountWidget);
+    } else {
+        mountWidget();
+    }
+    window.addEventListener('load', mountWidget);
+    setTimeout(mountWidget, 100);
+    setTimeout(mountWidget, 500);
 })();

@@ -78,9 +78,18 @@
         <p>
             Look at the <strong>bottom-right corner</strong> of your screen to see the floating bot launcher button, or click below to launch the popup window.
         </p>
-        <button class="btn" onclick="if(window.DiginixChatbot) window.DiginixChatbot.open();">Launch Chatbot</button>
+        <button class="btn" id="dnx-main-launch-btn">Launch Chatbot</button>
     </div>
-    <script src="chatbot.js" defer></script>
-
+    <script src="/chatbot.js"></script>
+    <script>
+        document.getElementById('dnx-main-launch-btn')?.addEventListener('click', function () {
+            if (window.DiginixChatbot && typeof window.DiginixChatbot.open === 'function') {
+                window.DiginixChatbot.open();
+            } else {
+                var btn = document.getElementById('dnx-launcher-btn');
+                if (btn) btn.click();
+            }
+        });
+    </script>
 </body>
 </html>
